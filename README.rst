@@ -8,7 +8,7 @@ Downloader for lecture2go
 	`GPL <http://www.gnu.org/licenses/gpl.html>`_
 
 :Dependencies:
-	`axel <http://axel.alioth.debian.org/>`_
+	`rtmpdump <http://rtmpdump.mplayerhq.hu/>`_
 
 Usage
 -----
