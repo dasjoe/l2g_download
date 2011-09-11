@@ -11,6 +11,7 @@ import re
 import argparse
 import sys
 import subprocess
+import math
 
 class l2gURLopener(urllib.FancyURLopener):
 	version = "Mozilla 5.0"
@@ -43,13 +44,18 @@ def main():
 	downloads = []
 	for link in videos:
 		page = loader.open(link).read()
-		videoFile = re.search(r'(http://lecture2go.uni-hamburg.de/videorep/.*/).+\.jpg',page).group(1) + re.search(r'&file=.+/(.+\.mp4)', page).group(1)
-		downloads.append(videoFile)
+		playerParams = re.search(r'showPlayer\(("rtmp",.*)\)',page).group(1)
+		playerParams = playerParams.replace('","', '|').replace('"', '').split('|')
+		videoFile = 'rtmp://fms.rrz.uni-hamburg.de:1935/vod/mp4:/' + playerParams[3] + '/' + playerParams[4]
+		downloads.append((videoFile, playerParams[4]))
 
+	number = 0
+	padding = int(math.log10(len(videos)))+1
 	for link in downloads:
-		filename = re.search(r'.*/(.+mp4)', link).group(1)
-		command = [findInPath("axel")]
-		command.extend(["-a", "-o", filename, link])
+		number = number + 1
+		command = [findInPath("rtmpdump")]
+		command.extend(["-r", link[0], "-o", "%0*d"%(padding, number) + link[1], "-e"])
+		print "Getting " + link[0]
 		subprocess.Popen(command, shell=False).wait()
 
 if __name__ == "__main__":
